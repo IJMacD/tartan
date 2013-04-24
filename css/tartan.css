@@ -1,0 +1,41 @@
+html,
+body {
+  height: 100%;
+}
+body,
+#details {
+  background:
+    linear-gradient(27deg, #151515 2px, transparent 2px) 0 2px,
+    linear-gradient(207deg, #151515 2px, transparent 2px) 4px 0px,
+    linear-gradient(27deg, #222 2px, transparent 2px) 0px 4px,
+    linear-gradient(207deg, #222 2px, transparent 2px) 4px 2px,
+    linear-gradient(90deg, #1b1b1b 4px, transparent 4px),
+    linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424);
+  background-color: #131313;
+  background-size: 8px 8px;
+  background-attachment: fixed;
+}
+#action-bar {
+  background-color: hsla(20,100%,50%,.9);
+  box-shadow: 0 2px 4px black;
+  position: fixed;
+  width: 100%;
+  z-index: 1005;
+}
+#action-bar h1 {
+  color: white;
+  display: inline;
+  font-size: 1.5em;
+  margin: 0;
+  padding: 0 15px;
+  text-shadow: 1px 1px 2px black;
+  vertical-align: middle;
+}
+#files {
+  display: none;
+}
+#tartan {
+  height: 100%;
+  margin-top: 40px;
+  width: 100%;
+}
