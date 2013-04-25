@@ -125,7 +125,10 @@ $(function(){
     		l = width,
     		weftLine,
 			warpLine,
-			numLines = 20;
+			numLines = 10,
+			imgData = [],
+			id, d,
+			r, g, b;
 
     	canvas[0].width = width;
     	canvas[0].height = height;
@@ -147,16 +150,24 @@ $(function(){
 		var start = Date.now();
 		requestAnimationFrame(weaveWeft);
 
-	    i = 1;
+	    i = 0;
 
 		function weaveWeft(){
 			l = i + numLines;
 			for(;i<l;i++){
-				weftLine = i % weftLines;
+				weftLine = (i % weftLines) + 1;
 				paletteNumber = weftColors[weftLine];
-				color = colors[paletteNumber];
 
-				ctx.fillStyle = "rgb(" + color + ")";
+				if(!imgData[paletteNumber]){
+					color = colors[paletteNumber].split(",");
+					id = ctx.createImageData(1,1);
+					d = id.data;
+					d[0] = color[0];
+					d[1] = color[1];
+					d[2] = color[2];
+					d[3] = 255;
+					imgData[paletteNumber] = id;
+				}
 
 				j = 1;
 				m = width;
@@ -165,7 +176,7 @@ $(function(){
 					mod = (weftLine + warpLine) % 4;
 					if(((warpLine % 2 === 0) && (mod === 1 || mod === 2)) ||
 						((warpLine % 2 === 1) && (mod === 0 || mod === 3))){
-						ctx.fillRect(j, i, 1, 1);
+						ctx.putImageData(imgData[paletteNumber], j, i);
 					}
 				}
 			}
