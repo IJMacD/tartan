@@ -5,7 +5,17 @@ $(function(){
 		// DOM Elements
 		filesInput = $('#files'),
 		openFileBtn = $('#open-file-btn'),
-		saveTartanBtn = $('#save-tartan-btn');
+		saveTartanBtn = $('#save-tartan-btn'),
+		patternTxt = $('#pattern-txt'),
+
+		// Colours
+		palette = {
+			"B": [43,63,132],
+			"G": [0,71,15],
+			"K": [15,15,15],
+			"R": [164,0,0],
+			"W": [223,223,223]
+		};
 
 	/*******************
 	 * File loading
@@ -52,6 +62,38 @@ $(function(){
     }
 
     saveTartanBtn.on('click', handleSaveTartan);
+
+	function handlePatternChange(e){
+		var val = patternTxt.val(),
+			regex = /([A-Z])([1-9][0-9]*)/g,
+			warp = [],
+			weft,
+			match,
+			i;
+		match = regex.exec(val);
+		while(match){
+			i = 0;
+			while(i < match[2]){
+				warp.push(match[1]);
+				i++;
+			}
+			match = regex.exec(val);
+		}
+		wif = {
+			'COLOR TABLE': palette,
+			'WARP': {
+				'Threads': warp.length
+			},
+			'WARP COLORS': warp,
+			'WEFT': {
+				'Threads': warp.length
+			},
+			'WEFT COLORS': warp,
+		};
+		drawWIF(wif);
+	}
+
+	patternTxt.on('keyup change', handlePatternChange);
 
     /**************************
      * Handle .wif file parsing
@@ -144,21 +186,23 @@ $(function(){
 		di = 0;
 
 		for(;i<l;i++){
-			weftLine = (i % weftLines) + 1;
+			weftLine = (i % weftLines) + (weftColors[0] ? 0 : 1);
 			weftPalette = weftColors[weftLine];
 
 			if(!colorData[weftPalette]){
-				colorData[weftPalette] = colors[weftPalette].split(",");
+				colorData[weftPalette] = colors[weftPalette].length ?
+					colors[weftPalette] : colors[weftPalette].split(",");
 			}
 
 			j = 0;
 			m = width;
 			for(;j<m;j++){
-				warpLine = (j % warpLines) + 1;
+				warpLine = (j % warpLines) + (warpColors[0] ? 0 : 1);
 				warpPalette = warpColors[warpLine];
 
 				if(!colorData[warpPalette]){
-					colorData[warpPalette] = colors[warpPalette].split(",");
+					colorData[warpPalette] = colors[warpPalette].length ?
+						colors[warpPalette] : colors[warpPalette].split(",");
 				}
 
 				mod = (weftLine + warpLine) % 4;
