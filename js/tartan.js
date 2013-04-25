@@ -126,7 +126,6 @@ $(function(){
     		l = width,
     		weftLine,
 			warpLine,
-			numLines = 100,
 			colorData = [],
 			di,
 			id, d;
@@ -135,62 +134,57 @@ $(function(){
     	canvas[0].height = height;
 
 		var start = Date.now();
-		requestAnimationFrame(weaveWeft);
 
 	    i = 0;
+		l = height;
 
-		function weaveWeft(){
-			l = i + numLines;
+		id = ctx.createImageData(width,height);
+		d = id.data;
 
-			id = ctx.createImageData(width,numLines);
-			d = id.data;
+		di = 0;
 
-			di = 0;
+		for(;i<l;i++){
+			weftLine = (i % weftLines) + 1;
+			weftPalette = weftColors[weftLine];
 
-			for(;i<l;i++){
-				weftLine = (i % weftLines) + 1;
-				weftPalette = weftColors[weftLine];
+			if(!colorData[weftPalette]){
+				colorData[weftPalette] = colors[weftPalette].split(",");
+			}
 
-				if(!colorData[weftPalette]){
-					colorData[weftPalette] = colors[weftPalette].split(",");
+			j = 0;
+			m = width;
+			for(;j<m;j++){
+				warpLine = (j % warpLines) + 1;
+				warpPalette = warpColors[warpLine];
+
+				if(!colorData[warpPalette]){
+					colorData[warpPalette] = colors[warpPalette].split(",");
 				}
 
-				j = 0;
-				m = width;
-				for(;j<m;j++){
-					warpLine = (j % warpLines) + 1;
-					warpPalette = warpColors[warpLine];
+				mod = (weftLine + warpLine) % 4;
 
-					if(!colorData[warpPalette]){
-						colorData[warpPalette] = colors[warpPalette].split(",");
-					}
-
-					mod = (weftLine + warpLine) % 4;
-
-					// Warp Color
-					if(((warpLine % 2 === 0) && (mod === 1 || mod === 2)) ||
-						((warpLine % 2 === 1) && (mod === 0 || mod === 3))){
-						color = colorData[warpPalette];
-					}
-					// Weft Color
-					else {
-						color = colorData[weftPalette];
-					}
-					d[di++] = color[0];
-					d[di++] = color[1];
-					d[di++] = color[2];
-					d[di++] = 255;
+				// Warp Color
+				if(((warpLine % 2 === 0) && (mod === 1 || mod === 2)) ||
+					((warpLine % 2 === 1) && (mod === 0 || mod === 3))){
+					color = colorData[warpPalette];
 				}
+				// Weft Color
+				else {
+					color = colorData[weftPalette];
+				}
+				d[di++] = color[0];
+				d[di++] = color[1];
+				d[di++] = color[2];
+				d[di++] = 255;
 			}
+		}
 
-			ctx.putImageData(id, 0, i-numLines);
+		ctx.putImageData(id, 0, 0);
 
-			if(i < height){
-				requestAnimationFrame(weaveWeft);
-			}
-			else {
-				console.log(Date.now() - start);
-			}
+		if(i < height){
+		}
+		else {
+			console.log(Date.now() - start);
 		}
     }
 });
