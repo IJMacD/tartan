@@ -65,20 +65,40 @@ $(function(){
 
 	function handlePatternChange(e){
 		var val = patternTxt.val(),
-			regex = /([A-Z])([1-9][0-9]*)/g,
+			completeRegex = /[A-Z0-9 ]+~?(, [A-Z0-9 ]+)?/g,
+			colorRegex = /([A-Z])([1-9][0-9]*)(~?,?)/g,
 			warp = [],
 			weft,
+			current = warp,
 			match,
 			i;
-		match = regex.exec(val);
+
+		if(!completeRegex.test(val))
+			return;
+
+		match = colorRegex.exec(val);
 		while(match){
 			i = 0;
 			while(i < match[2]){
-				warp.push(match[1]);
+				current.push(match[1]);
 				i++;
 			}
-			match = regex.exec(val);
+			if(match[3]){
+				if(match[3][0] === "~"){
+					i = current.length - 1;
+					for(;i>=0;i--){
+						current.push(current[i]);
+					}
+				}
+				if(match[3] === "," || match[3][1] === ","){
+					weft = [];
+					current = weft;
+				}
+			}
+			match = colorRegex.exec(val);
 		}
+		if(!weft)
+			weft = warp;
 		wif = {
 			'COLOR TABLE': palette,
 			'WARP': {
@@ -86,9 +106,9 @@ $(function(){
 			},
 			'WARP COLORS': warp,
 			'WEFT': {
-				'Threads': warp.length
+				'Threads': weft.length
 			},
-			'WEFT COLORS': warp,
+			'WEFT COLORS': weft,
 		};
 		drawWIF(wif);
 	}
