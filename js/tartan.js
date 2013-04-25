@@ -125,7 +125,7 @@ $(function(){
     		l = width,
     		weftLine,
 			warpLine,
-			numLines = 10;
+			numLines = 20;
 
     	canvas[0].width = width;
     	canvas[0].height = height;
@@ -144,6 +144,7 @@ $(function(){
     		ctx.stroke();
     	}
 
+		var start = Date.now();
 		requestAnimationFrame(weaveWeft);
 
 	    i = 1;
@@ -170,6 +171,9 @@ $(function(){
 			}
 			if(i < height){
 				requestAnimationFrame(weaveWeft);
+			}
+			else {
+				console.log(Date.now() - start);
 			}
 		}
     }
