@@ -110,9 +110,9 @@ $(function(){
      */
     function drawWIF(wif){
     	var colors = wif['COLOR TABLE'],
-    		warpLines = wif['WARP'].Threads,
+			warpLines = parseInt(wif['WARP'].Threads),
     		warpColors = wif['WARP COLORS'],
-    		weftLines = wif['WEFT'].Threads,
+			weftLines = parseInt(wif['WEFT'].Threads),
     		weftColors = wif['WEFT COLORS'],
     		paletteNumber,
     		color,
@@ -124,7 +124,8 @@ $(function(){
     		i = 1,
     		l = width,
     		weftLine,
-    		warpLine;
+			warpLine,
+			numLines = 10;
 
     	canvas[0].width = width;
     	canvas[0].height = height;
@@ -143,25 +144,33 @@ $(function(){
     		ctx.stroke();
     	}
 
-    	i = 1;
-    	l = height;
-    	for(;i<l;i++){
-    		weftLine = i % weftLines;
-    		paletteNumber = weftColors[weftLine];
-    		color = colors[paletteNumber];
+		requestAnimationFrame(weaveWeft);
 
-    		ctx.fillStyle = "rgb(" + color + ")";
+	    i = 1;
 
-    		j = 1;
-    		m = width;
-    		for(;j<m;j++){
-    			warpLine = j % warpLines;
-    			mod = (weftLine + warpLine) % 4;
-    			if(((warpLine % 2 === 0) && (mod === 1 || mod === 2)) ||
-    				((warpLine % 2 === 1) && (mod === 0 || mod === 3))){
-    				ctx.fillRect(j, i, 1, 1);
-    			}
-    		}
-    	}
+		function weaveWeft(){
+			l = i + numLines;
+			for(;i<l;i++){
+				weftLine = i % weftLines;
+				paletteNumber = weftColors[weftLine];
+				color = colors[paletteNumber];
+
+				ctx.fillStyle = "rgb(" + color + ")";
+
+				j = 1;
+				m = width;
+				for(;j<m;j++){
+					warpLine = j % warpLines;
+					mod = (weftLine + warpLine) % 4;
+					if(((warpLine % 2 === 0) && (mod === 1 || mod === 2)) ||
+						((warpLine % 2 === 1) && (mod === 0 || mod === 3))){
+						ctx.fillRect(j, i, 1, 1);
+					}
+				}
+			}
+			if(i < height){
+				requestAnimationFrame(weaveWeft);
+			}
+		}
     }
 });
