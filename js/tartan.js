@@ -114,7 +114,8 @@ $(function(){
     		warpColors = wif['WARP COLORS'],
 			weftLines = parseInt(wif['WEFT'].Threads),
     		weftColors = wif['WEFT COLORS'],
-    		paletteNumber,
+			warpPalette,
+			weftPalette,
     		color,
     		j,
     		m,
@@ -125,27 +126,13 @@ $(function(){
     		l = width,
     		weftLine,
 			warpLine,
-			numLines = 10,
-			imgData = [],
-			id, d,
-			r, g, b;
+			numLines = 100,
+			colorData = [],
+			di,
+			id, d;
 
     	canvas[0].width = width;
     	canvas[0].height = height;
-
-    	for(;i<l;i++){
-    		weftLine = i % warpLines;
-    		paletteNumber = warpColors[weftLine];
-    		color = colors[paletteNumber];
-
-    		ctx.strokeStyle = "rgb(" + color + ")";
-
-    		ctx.beginPath();
-    		ctx.moveTo(i-0.5,0);
-    		ctx.lineTo(i-0.5,height);
-
-    		ctx.stroke();
-    	}
 
 		var start = Date.now();
 		requestAnimationFrame(weaveWeft);
@@ -154,32 +141,50 @@ $(function(){
 
 		function weaveWeft(){
 			l = i + numLines;
+
+			id = ctx.createImageData(width,numLines);
+			d = id.data;
+
+			di = 0;
+
 			for(;i<l;i++){
 				weftLine = (i % weftLines) + 1;
-				paletteNumber = weftColors[weftLine];
+				weftPalette = weftColors[weftLine];
 
-				if(!imgData[paletteNumber]){
-					color = colors[paletteNumber].split(",");
-					id = ctx.createImageData(1,1);
-					d = id.data;
-					d[0] = color[0];
-					d[1] = color[1];
-					d[2] = color[2];
-					d[3] = 255;
-					imgData[paletteNumber] = id;
+				if(!colorData[weftPalette]){
+					colorData[weftPalette] = colors[weftPalette].split(",");
 				}
 
-				j = 1;
+				j = 0;
 				m = width;
 				for(;j<m;j++){
-					warpLine = j % warpLines;
+					warpLine = (j % warpLines) + 1;
+					warpPalette = warpColors[warpLine];
+
+					if(!colorData[warpPalette]){
+						colorData[warpPalette] = colors[warpPalette].split(",");
+					}
+
 					mod = (weftLine + warpLine) % 4;
+
+					// Warp Color
 					if(((warpLine % 2 === 0) && (mod === 1 || mod === 2)) ||
 						((warpLine % 2 === 1) && (mod === 0 || mod === 3))){
-						ctx.putImageData(imgData[paletteNumber], j, i);
+						color = colorData[warpPalette];
 					}
+					// Weft Color
+					else {
+						color = colorData[weftPalette];
+					}
+					d[di++] = color[0];
+					d[di++] = color[1];
+					d[di++] = color[2];
+					d[di++] = 255;
 				}
 			}
+
+			ctx.putImageData(id, 0, i-numLines);
+
 			if(i < height){
 				requestAnimationFrame(weaveWeft);
 			}
