@@ -101,8 +101,9 @@ $(function(){
 			while(true){
 				nextCode = hash[i].toUpperCase();
 
-				threads = parseInt(hash.slice(i+1,i+2),16) * 2;
+				threads = parseInt(hash.slice(i+1,i+2),16);
 				mod = (mod + threads) % 2;
+				threads = threads * 2;
 				for(j=0;j<threads;j++){
 					current.push(nextCode);
 				}
