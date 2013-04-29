@@ -1,3 +1,11 @@
+/******************
+ * Example Tartan Patterns
+ *
+ * Clan Ranald	B12 R4 B4 R6 B24 R4 K22 W4 G22 R6 G4 R4 G12~
+ * Fibonacci:	G1 W1 G2 W3 G5 O8 S13 H21 G34 H55 K89
+ Y2 R12 B2 R6 B2 R2 G4 W2 G4 R6 Y2 R6 BK4 R2 B2 R6 B2 R2 G8 R6 B2 R2 B2 R2 B2 R2 B2 R30
+ */
+
 $(function(){
 	var canvas = $('#tartan'),
 		ctx = canvas[0].getContext('2d'),
@@ -10,11 +18,15 @@ $(function(){
 
 		// Colours
 		palette = {
-			"B": [43,63,132],
-			"G": [0,71,15],
-			"K": [15,15,15],
-			"R": [164,0,0],
-			"W": [223,223,223]
+			"B": [43,63,132],	// Blue
+			"G": [0,71,15],		// Green
+			"H": [53,94,59],	// Hunting Green
+			"K": [15,15,15],	// Black
+			"O": [115,98,72],	// Olive Brown
+			"R": [164,0,0],		// Red
+			"S": [136,45,23],	// Sienna
+			"W": [223,223,223],	// White
+			"Y": [255,255,0]	// Yellow
 		};
 
 	/*******************
