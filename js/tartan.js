@@ -22,12 +22,132 @@ $(function(){
 			"G": [0,71,15],		// Green
 			"H": [53,94,59],	// Hunting Green
 			"K": [15,15,15],	// Black
+			"N": [0,0,80],		// Navy
 			"O": [115,98,72],	// Olive Brown
 			"R": [164,0,0],		// Red
 			"S": [136,45,23],	// Sienna
 			"W": [223,223,223],	// White
 			"Y": [255,255,0]	// Yellow
-		};
+		},
+
+	/*******************
+	 * SHA1 specification
+	 * ==================
+	 *
+	 * e.g.
+	 * cf44bb9b19fbb169804f92d82924cbf1cb008c79
+	 * +&&+&&+&&+&&+&&+&&+&&+&&+&&+&&+&&+&&+&&
+	 *
+	 * + Colour/Control code
+	 * & Colour Count
+	 *
+	 * Colour/Control Codes
+	 * --------------------
+	 * 
+	 * 0: Black
+	 * 1: White
+	 * 2: Red
+	 * 3: Green
+	 * 4: Blue
+	 * 5: Sienna
+	 * 6: Hunting Green
+	 * 7: Navy
+	 * 8: Olive Brown
+	 * 9: Yellow
+	 * A:
+	 * B:
+	 * C:
+	 * D: END WEAVE - NO REPEAT
+	 * E: END WEAVE - REPEAT
+	 * F: END
+	 *******************/
+	 	sha1 = {};
+
+	(function(sha1){
+	 	sha1.palette = {
+	 		0: palette.K,
+	 		1: palette.W,
+	 		2: palette.R,
+	 		3: palette.G,
+	 		4: palette.B,
+	 		5: palette.S,
+	 		6: palette.H,
+	 		7: palette.N,
+	 		8: palette.O,
+	 		9: palette.Y
+	 	};
+
+	 	sha1.END_NOREPEAT = "D";
+	 	sha1.END_REPEAT = "E";
+	 	sha1.END = "F";
+
+	 	sha1.parse = function(hash){
+	 		var i = 0,
+	 			l = hash.length,
+	 			go = true,
+	 			nextCode,
+	 			warp = [],
+	 			weft,
+	 			color,
+	 			threads,
+	 			j,
+	 			current = warp;
+	 		while(true){
+	 			nextCode = hash[i].toUpperCase();
+
+	 			if(sha1.palette[nextCode]){
+	 				threads = (parseInt(hash.slice(i+1,i+3),16)/5);
+	 				for(j=0;j<threads;j++){
+	 					current.push(nextCode);
+	 				}
+	 				i += 2;
+	 			}
+	 			else if(warp.length){
+	 				if(nextCode == sha1.END_NOREPEAT ||
+	 					nextCode == sha1.END_REPEAT){
+			 			if(nextCode == sha1.END_REPEAT){
+			 				j = current.length - 1;
+			 				for(;j>=0;j--){
+			 					current.push(current[j]);
+			 				}
+			 			}
+		 				if(weft) {
+		 					break;
+		 				}
+		 				else {
+		 					weft = [];
+		 					current = weft;
+		 				}
+		 			}
+		 			else if(nextCode == sha1.END){
+		 				break;
+		 			}
+		 		}
+
+	 			i += 1;
+
+	 			if(i >= l)
+	 				break;
+	 		}
+
+	 		if(!weft){
+	 			weft = warp;
+	 		}
+
+	 		return {
+				'COLOR TABLE': sha1.palette,
+				'WARP': {
+					'Threads': warp.length
+				},
+				'WARP COLORS': warp,
+				'WEFT': {
+					'Threads': weft.length
+				},
+				'WEFT COLORS': weft,
+			};
+	 	};
+
+	}(sha1));
 
 	/*******************
 	 * File loading
@@ -125,7 +245,14 @@ $(function(){
 		drawWIF(wif);
 	}
 
-	patternTxt.on('keyup change', handlePatternChange);
+	function handleHashChange(){
+		var val = patternTxt.val(),
+			wif = sha1.parse(val);
+		drawWIF(wif);
+	}
+
+	//patternTxt.on('keyup change', handlePatternChange);
+	patternTxt.on('keyup change', handleHashChange);
 
     /**************************
      * Handle .wif file parsing
