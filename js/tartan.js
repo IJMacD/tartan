@@ -64,78 +64,74 @@ $(function(){
 	 	sha1 = {};
 
 	(function(sha1){
-	 	sha1.palette = {
-	 		0: palette.K,
-	 		1: palette.W,
-	 		2: palette.R,
-	 		3: palette.G,
-	 		4: palette.B,
-	 		5: palette.S,
-	 		6: palette.H,
-	 		7: palette.N,
-	 		8: palette.O,
-	 		9: palette.Y
-	 	};
+		var _palette = {
+			0: palette.K,
+			1: palette.W,
+			2: palette.R,
+			3: palette.G,
+			4: palette.B,
+			5: palette.S,
+			6: palette.H,
+			7: palette.N,
+			8: palette.O,
+			9: palette.Y,
+			A: [23,23,67],
+			B: [91,138,45],
+			C: [81,81,10],
+			D: [0,67,130],
+			E: [120,101,86],
+			F: [95,120,34]
+		},
 
-	 	sha1.END_NOREPEAT = "D";
-	 	sha1.END_REPEAT = "E";
-	 	sha1.END = "F";
+		warpBands = 4,
+		weftBands = 4;
 
-	 	sha1.parse = function(hash){
-	 		var i = 0,
-	 			l = hash.length,
-	 			go = true,
-	 			nextCode,
-	 			warp = [],
-	 			weft,
-	 			color,
-	 			threads,
-	 			j,
-	 			current = warp;
-	 		while(true){
-	 			nextCode = hash[i].toUpperCase();
+		sha1.parse = function(hash){
+			var i = 0,
+				l = Math.min(hash.length, (warpBands + weftBands) * 3),
+				go = true,
+				nextCode,
+				warp = [],
+				weft = [],
+				color,
+				threads,
+				j,
+				current = warp,
+				mod = 0;
+			while(true){
+				nextCode = hash[i].toUpperCase();
 
-	 			if(sha1.palette[nextCode]){
-	 				threads = (parseInt(hash.slice(i+1,i+3),16)/5);
-	 				for(j=0;j<threads;j++){
-	 					current.push(nextCode);
-	 				}
-	 				i += 2;
-	 			}
-	 			else if(warp.length){
-	 				if(nextCode == sha1.END_NOREPEAT ||
-	 					nextCode == sha1.END_REPEAT){
-			 			if(nextCode == sha1.END_REPEAT){
-			 				j = current.length - 1;
-			 				for(;j>=0;j--){
-			 					current.push(current[j]);
-			 				}
-			 			}
-		 				if(weft) {
-		 					break;
-		 				}
-		 				else {
-		 					weft = [];
-		 					current = weft;
-		 				}
-		 			}
-		 			else if(nextCode == sha1.END){
-		 				break;
-		 			}
-		 		}
+				threads = parseInt(hash.slice(i+1,i+2),16) * 2;
+				mod = (mod + threads) % 2;
+				for(j=0;j<threads;j++){
+					current.push(nextCode);
+				}
+				i += 1;
 
-	 			i += 1;
+				if(i == (warpBands * 3) ||
+					i == l){
 
-	 			if(i >= l)
-	 				break;
-	 		}
+					if(mod){
+						j = current.length - 1;
+						for(;j>=0;j--){
+							current.push(current[j]);
+						}
+					}
 
-	 		if(!weft){
-	 			weft = warp;
-	 		}
+					if(i == l){
+						break;
+					}
 
-	 		return {
-				'COLOR TABLE': sha1.palette,
+					current = weft;
+				}
+			}
+
+			if(!weft.length){
+				weft = warp;
+			}
+
+			return {
+				'COLOR TABLE': _palette,
 				'WARP': {
 					'Threads': warp.length
 				},
@@ -145,7 +141,7 @@ $(function(){
 				},
 				'WEFT COLORS': weft,
 			};
-	 	};
+		};
 
 	}(sha1));
 
